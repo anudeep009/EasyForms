@@ -1,11 +1,18 @@
 import express from "express";
 import dotenv from "dotenv";
-import connectDB from "./db/index.js";
+import cookieParser from "cookie-parser"; 
+import connectDB from "./db/index.js"; 
+import userRoutes from "./routes/user.routes.js"; 
 
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 8002;
+const port = process.env.PORT || 8003;
+
+
+app.use(express.json()); 
+app.use(cookieParser()); 
+
 
 connectDB()
   .then(() => {
@@ -17,6 +24,14 @@ connectDB()
     console.log("MONGODB connection failed !!! ", err);
   });
 
-app.get('/',(req,res) => {
-    res.send("server running...")
-})
+
+app.get("/", (req, res) => {
+  res.send("Server is running...");
+});
+
+
+app.use("/api/users", userRoutes);
+
+app.use((err, req, res, next) => {
+  res.status(err.status || 500).json({ message: err.message || "Internal Server Error" });
+});
