@@ -2,14 +2,35 @@
 
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useState } from "react";
 
 export default function Login() {
   const { register, handleSubmit, formState: { errors } } = useForm();
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const onSubmit = (data) => {
-    console.log("Login data:", data);
-    // Implement login logic here (e.g., API call)
+  const handleNavigate = () => {
+    navigate("/signup");
+  };
+
+  const onSubmit = async (data) => {
+    setIsLoading(true);
+    setErrorMessage("");
+    try {
+      await axios.post("http://localhost:8002/api/users/login", { 
+        email: data.email,
+        password: data.password,
+      });
+      navigate("/");
+    } catch (error) {
+      setErrorMessage(
+        error.response?.data?.message || "Failed to login. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -18,6 +39,7 @@ export default function Login() {
         <h1 className="text-2xl md:text-3xl font-bold text-yellow-300 text-center mb-6">
           Login
         </h1>
+        {errorMessage && <p className="text-red-400 text-center mb-4">{errorMessage}</p>}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-teal-400 mb-1">
@@ -53,15 +75,18 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full py-3 bg-teal-600 text-white font-semibold rounded-md hover:bg-teal-700 transition"
+            className={`w-full py-3 text-white font-semibold rounded-md transition ${
+              isLoading ? "bg-teal-500 cursor-not-allowed" : "bg-teal-600 hover:bg-teal-700"
+            }`}
+            disabled={isLoading}
           >
-            Login
+            {isLoading ? "Logging in..." : "Login"}
           </button>
         </form>
         <p className="text-center text-teal-300 mt-4">
           Don't have an account?{" "}
           <span
-            onClick={() => navigate("/signup")}
+            onClick={handleNavigate}
             className="underline cursor-pointer text-teal-200 hover:text-teal-100"
           >
             Sign Up

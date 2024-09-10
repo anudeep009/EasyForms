@@ -4,55 +4,67 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiErrorHandler.js";
 
-const generateAccessAndRefreshTokens = async (userId) => {
+const generateAccessAndRefereshTokens = async (userId) => {
   const user = await User.findById(userId);
   if (!user) throw new ApiError(404, "User not found");
 
   const accessToken = user.generateAccessToken();
   const newRefreshToken = user.generateRefreshToken();
 
+  // Update user's refreshToken in the database
   await User.findByIdAndUpdate(userId, { refreshToken: newRefreshToken });
 
   return { accessToken, refreshToken: newRefreshToken };
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { fullName, email, password } = req.body;
+  const { fullName, email, username, password } = req.body;
 
-  if ([fullName, email, password].some((field) => field?.trim() === "")) {
+  console.log("email: ", email);
+
+  if ([fullName, email, username, password].some((field) => field?.trim() === "")) {
     throw new ApiError(400, "All fields are required");
   }
 
-  const existedUser = await User.findOne({ email });
+  const existedUser = await User.findOne({
+    $or: [{ username }, { email }],
+  });
 
   if (existedUser) {
-    throw new ApiError(409, "User with email already exists");
+    throw new ApiError(409, "User with email or username already exists");
   }
 
   const user = await User.create({
     fullName,
     email,
     password,
+    username: username.toLowerCase(),
   });
 
-  const createdUser = await User.findById(user._id).select("-password -refreshToken");
+  const createdUser = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
 
   if (!createdUser) {
     throw new ApiError(500, "Something went wrong while registering the user");
   }
 
-  return res.status(201).json(new ApiResponse(201, createdUser, "User registered successfully"));
+  return res.status(201).json(
+    new ApiResponse(201, createdUser, "User registered Successfully")
+  );
 });
 
-
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, username, password } = req.body;
+  console.log(email);
 
-  if (!email) {
-    throw new ApiError(400, "Email is required");
+  if (!username && !email) {
+    throw new ApiError(400, "Username or email is required");
   }
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({
+    $or: [{ username }, { email }],
+  });
 
   if (!user) {
     throw new ApiError(404, "User does not exist");
@@ -64,23 +76,36 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Invalid user credentials");
   }
 
-  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
+  const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
+    user._id
+  );
 
-  const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
+  const loggedInUser = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
 
-  const cookieOptions = {
+  const options = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
     sameSite: "Strict",
   };
 
   return res
     .status(200)
-    .cookie("accessToken", accessToken, cookieOptions)
-    .cookie("refreshToken", refreshToken, cookieOptions)
-    .json(new ApiResponse(200, { user: loggedInUser, accessToken, refreshToken }, "User logged in successfully"));
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+      new ApiResponse(
+        200,
+        {
+          user: loggedInUser,
+          accessToken,
+          refreshToken,
+        },
+        "User logged In Successfully"
+      )
+    );
 });
-
 
 const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
@@ -138,9 +163,9 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       sameSite: "Strict", 
     };
 
-    const { accessToken, newRefreshToken } = await generateAccessAndRefreshTokens(
+    const { accessToken, newRefreshToken } = await generateAccessAndRefereshTokens(
       user._id
-    );    
+    );
 
     return res
       .status(200)
@@ -204,6 +229,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, user, "Account details updated successfully"));
 });
+
 export {
   registerUser,
   loginUser,

@@ -3,14 +3,31 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Signup() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate();
+  const [apiError, setApiError] = useState(null);
 
-  const onSubmit = (data) => {
-    console.log("Signup data:", data);
-    // Implement signup logic here (e.g., API call)
+  const onSubmit = async (data) => {
+    try {
+      const response = await axios.post("http://localhost:8002/api/users/register", { // Correct endpoint
+        email: data.email,
+        fullName: data.fullname,
+        password: data.password,
+      });
+
+      console.log("Signup successful:", response.data);
+      navigate("/login");
+    } catch (error) {
+      if (error.response) {
+        setApiError(error.response.data.message || "An error occurred during signup.");
+      } else {
+        setApiError("Network error, please try again.");
+      }
+      console.error("Signup error:", error);
+    }
   };
 
   return (
@@ -20,23 +37,6 @@ export default function Signup() {
           Sign Up
         </h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div>
-            <label htmlFor="username" className="block text-teal-400 mb-1">
-              Username
-            </label>
-            <input
-              type="text"
-              id="username"
-              {...register("username", { required: "Username is required" })}
-              className="w-full p-2 border border-gray-700 bg-gray-900 rounded-md text-white"
-            />
-            {errors.username && (
-              <span className="text-red-400 text-xs">
-                {errors.username.message}
-              </span>
-            )}
-          </div>
-
           <div>
             <label htmlFor="email" className="block text-teal-400 mb-1">
               Email
@@ -83,6 +83,7 @@ export default function Signup() {
               </span>
             )}
           </div>
+          {apiError && <p className="text-red-400 text-xs">{apiError}</p>}
 
           <button
             type="submit"
