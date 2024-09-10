@@ -1,27 +1,21 @@
-import { useState } from 'react'
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route
-} from "react-router-dom";
-import { Home, Jobsform, Scholarshipsform, Login, Signup} from '../exports'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Home, Jobsform, Scholarshipsform, Login, Signup } from '../exports';
+import Layout from './components/Layout';
 
 function App() {
-
-
   return (
-    <>
-      <Router>
-        <Routes>
-          <Route path='/' element={<Home />} /> 
-          <Route path='/jobsform' element={<Jobsform />} />
-          <Route path='/signup' element={<Signup />} />
-          <Route path='/login' element={<Login />} />
-          <Route path='/scholarshipsform' element={<Scholarshipsform />} />
-        </Routes>
-      </Router>
-    </>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} /> {/* Default route */}
+          <Route path="jobsform" element={<Jobsform />} />
+          <Route path="scholarshipsform" element={<Scholarshipsform />} />
+          <Route path="signup" element={<Signup />} />
+          <Route path="login" element={<Login />} />
+        </Route>
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;

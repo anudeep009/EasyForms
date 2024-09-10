@@ -39,8 +39,7 @@ export default function ScholarshipsForm() {
 
   return (
     <>
-    <div className="bg-gradient-to-br from-gray-900 to-black">
-    <h1 className="text-xl md:text-3xl font-bold leading-tight text-yellow-300 flex justify-center">Scholarships Application Form</h1>
+    <h1 className="text-xl md:text-3xl mb-5 mt-20 font-bold leading-tight text-yellow-300 flex justify-center">Scholarships Application Form</h1>
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="space-y-8 max-w-2xl mx-auto p-4 bg-gradient-to-br from-gray-900 to-black text-white rounded-lg shadow-md"
@@ -284,7 +283,6 @@ export default function ScholarshipsForm() {
         Submit Application
       </button>
     </form>
-    </div>
     </>
   );
 }
