@@ -1,15 +1,18 @@
-import * as React from "react";
+import React from "react";
 import { Menu, User } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = React.useState(false);
 
   const handleNavigation = (path) => {
     navigate(path);
     setIsOpen(false);
   };
+
+  const isActive = (path) => location.pathname === path;
 
   return (
     <header className="fixed top-0 z-50 w-full bg-white shadow-md dark:bg-gray-800">
@@ -43,14 +46,20 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
             <button
-              className="text-teal-600 hover:text-teal-800 transition-colors focus:outline-none"
+              className={`text-teal-600 hover:text-teal-800 transition-colors focus:outline-none ${
+                isActive("/Jobsform") ? "border-b-2 border-teal-600" : ""
+              }`}
               onClick={() => handleNavigation("/Jobsform")}
               aria-label="Navigate to Jobs Form"
             >
               Jobs Form
             </button>
             <button
-              className="text-teal-600 hover:text-teal-800 transition-colors focus:outline-none"
+              className={`text-teal-600 hover:text-teal-800 transition-colors focus:outline-none ${
+                isActive("/Scholarshipsform")
+                  ? "border-b-2 border-teal-600"
+                  : ""
+              }`}
               onClick={() => handleNavigation("/Scholarshipsform")}
               aria-label="Navigate to Scholarships Form"
             >
@@ -58,7 +67,9 @@ export default function Header() {
             </button>
             {/* Profile Option */}
             <button
-              className="flex items-center space-x-1 text-teal-600 hover:text-teal-800 transition-colors focus:outline-none"
+              className={`flex items-center space-x-1 text-teal-600 hover:text-teal-800 transition-colors focus:outline-none ${
+                isActive("/Profile") ? "border-b-2 border-teal-600" : ""
+              }`}
               onClick={() => handleNavigation("/Profile")}
               aria-label="Navigate to Profile"
             >
@@ -81,14 +92,20 @@ export default function Header() {
               <div className="absolute top-full right-0 w-48 mt-2 bg-white dark:bg-gray-700 rounded-lg shadow-lg transition-all duration-200">
                 <nav className="flex flex-col space-y-2 py-2 px-3">
                   <button
-                    className="text-gray-800 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded p-2 text-left transition-all duration-150"
+                    className={`text-gray-800 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded p-2 text-left transition-all duration-150 ${
+                      isActive("/Jobsform") ? "border-l-4 border-teal-500" : ""
+                    }`}
                     onClick={() => handleNavigation("/Jobsform")}
                     aria-label="Navigate to Jobs Form"
                   >
                     Jobs Form
                   </button>
                   <button
-                    className="text-gray-800 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded p-2 text-left transition-all duration-150"
+                    className={`text-gray-800 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded p-2 text-left transition-all duration-150 ${
+                      isActive("/Scholarshipsform")
+                        ? "border-l-4 border-teal-500"
+                        : ""
+                    }`}
                     onClick={() => handleNavigation("/Scholarshipsform")}
                     aria-label="Navigate to Scholarships Form"
                   >
@@ -96,7 +113,9 @@ export default function Header() {
                   </button>
                   {/* Profile Option in Mobile Menu */}
                   <button
-                    className="text-gray-800 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded p-2 text-left transition-all duration-150 flex items-center space-x-1"
+                    className={`text-gray-800 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded p-2 text-left transition-all duration-150 flex items-center space-x-1 ${
+                      isActive("/Profile") ? "border-l-4 border-teal-500" : ""
+                    }`}
                     onClick={() => handleNavigation("/Profile")}
                     aria-label="Navigate to Profile"
                   >
