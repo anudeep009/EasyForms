@@ -8,6 +8,7 @@ import {
   changeCurrentPassword,
   refreshAccessToken,
 } from "../controllers/user.controller.js";
+import { getUserData } from "../controllers/jobsform.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
@@ -32,5 +33,8 @@ router.put("/update-account", verifyJWT, updateAccountDetails);
 
 // Change current password (protected route)
 router.put("/change-password", verifyJWT, changeCurrentPassword);
+
+// Save data to the backend jobsform information
+router.post("/Jobsform", verifyJWT, getUserData);
 
 export default router;

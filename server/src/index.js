@@ -14,7 +14,7 @@ const port = process.env.PORT || 8003;
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin : process.env.CORS,
+  origin : 'http://localhost:5173',
   credentials : true
 }));
 
