@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiErrorHandler.js";
 
+
 const generateAccessAndRefreshTokens = async (userId) => {
   const user = await User.findById(userId);
   if (!user) throw new ApiError(404, "User not found");
@@ -204,6 +205,18 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, user, "Account details updated successfully"));
 });
+
+  const getUserProfile = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id).select("fullName email");
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    return res.status(200).json(new ApiResponse(200, user, "User data fetched successfully"));
+  });
+
+
 export {
   registerUser,
   loginUser,
@@ -212,4 +225,5 @@ export {
   getCurrentUser,
   changeCurrentPassword,
   refreshAccessToken,
+  getUserProfile
 };

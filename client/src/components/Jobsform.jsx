@@ -12,7 +12,6 @@ export default function JobsForm() {
 
   const { register, handleSubmit, formState: { errors } } = useForm();
 
-  // Handlers for dynamically adding education, experience, and skills
   const addEducation = () => setEducation([...education, { institution: "", degree: "", year: "" }]);
   const addExperience = () => setExperience([...experience, { company: "", position: "", duration: "", description: "" }]);
   const addSkill = () => setSkills([...skills, ""]);
@@ -27,7 +26,7 @@ export default function JobsForm() {
 
     console.log("Submitting Form Data:", formData);
 
-    const token = Cookies.get("accessToken");  // Assuming the JWT token is stored in cookies
+    const token = Cookies.get("accessToken");
 
     try {
       const response = await axios.post(
@@ -36,12 +35,12 @@ export default function JobsForm() {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,  // Adding JWT token in headers
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         alert("Form submitted successfully!");
       } else {
         alert("Failed to submit form.");

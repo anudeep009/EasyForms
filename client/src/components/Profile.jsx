@@ -1,40 +1,30 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 export default function Profile() {
-  const { register, handleSubmit, formState: { errors } } = useForm();
-  const [apiError, setApiError] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
+  const [userData, setUserData] = useState({
+    email: "",
+    fullName: "",
+  });
 
-  const handleImageChange = (e) => {
-    setProfileImage(e.target.files[0]);
-  };
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get('http://localhost:8002/api/users/Profile');
+        const { fullName, email, image } = response.data;
 
-  const onSubmit = async (data) => {
-    try {
-      // Assuming you have an endpoint to update the user profile
-      const formData = new FormData();
-      formData.append("email", data.email);
-      formData.append("fullName", data.fullname);
-      formData.append("profileImage", profileImage);
-
-      const response = await axios.put("http://localhost:8002/api/users/update", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      console.log("Profile updated successfully:", response.data);
-    } catch (error) {
-      if (error.response) {
-        setApiError(error.response.data.message || "An error occurred during profile update.");
-      } else {
-        setApiError("Network error, please try again.");
+        setProfileImage(image);
+        setUserData({ email, fullName });
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
       }
-      console.error("Profile update error:", error);
-    }
-  };
+    };
+
+    fetchProfile();
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -42,22 +32,14 @@ export default function Profile() {
         <h1 className="text-2xl md:text-3xl font-bold text-yellow-300 text-center mb-6">
           Profile
         </h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-6">
           <div className="flex flex-col items-center">
-            <label htmlFor="profileImage" className="relative cursor-pointer">
-              <input
-                type="file"
-                id="profileImage"
-                className="hidden"
-                accept="image/*"
-                onChange={handleImageChange}
-              />
+            <label className="relative cursor-default">
               <img
-                src={profileImage ? URL.createObjectURL(profileImage) : "/default-avatar.png"}
+                src={profileImage ? URL.createObjectURL(profileImage) : "/avatar.png"}
                 alt="Profile"
                 className="w-24 h-24 object-cover rounded-full border-4 border-teal-400"
               />
-              <span className="text-teal-400 underline mt-2 cursor-pointer">Change Photo</span>
             </label>
           </div>
 
@@ -68,12 +50,10 @@ export default function Profile() {
             <input
               type="email"
               id="email"
-              {...register("email", { required: "Email is required" })}
-              className="w-full p-2 border border-gray-700 bg-gray-900 rounded-md text-white"
+              value={userData.email}
+              readOnly
+              className="w-full p-2 border border-gray-700 bg-gray-900 rounded-md text-white cursor-not-allowed"
             />
-            {errors.email && (
-              <span className="text-red-400 text-xs">{errors.email.message}</span>
-            )}
           </div>
 
           <div>
@@ -83,23 +63,12 @@ export default function Profile() {
             <input
               type="text"
               id="fullname"
-              {...register("fullname", { required: "Full name is required" })}
-              className="w-full p-2 border border-gray-700 bg-gray-900 rounded-md text-white"
+              value={userData.fullName}
+              readOnly
+              className="w-full p-2 border border-gray-700 bg-gray-900 rounded-md text-white cursor-not-allowed"
             />
-            {errors.fullname && (
-              <span className="text-red-400 text-xs">{errors.fullname.message}</span>
-            )}
           </div>
-
-          {apiError && <p className="text-red-400 text-xs">{apiError}</p>}
-
-          <button
-            type="submit"
-            className="w-full py-3 bg-teal-600 text-white font-semibold rounded-md hover:bg-teal-700 transition"
-          >
-            Update Profile
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );

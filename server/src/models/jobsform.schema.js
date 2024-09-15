@@ -2,6 +2,11 @@ import mongoose, { Schema } from "mongoose";
 
 const jobsmodel = new Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     firstName: {
       type: String,
       required: true,

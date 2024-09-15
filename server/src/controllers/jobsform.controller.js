@@ -18,7 +18,7 @@ const getUserData = asyncHandler(async (req, res) => {
       skills,
     } = req.body;
 
-    // Basic validation
+   
     if (
       !firstName ||
       !lastName ||
@@ -26,17 +26,17 @@ const getUserData = asyncHandler(async (req, res) => {
       !phoneNumber ||
       !address ||
       !education ||
-      education.length === 0 ||  // Ensuring it's not empty
+      education.length === 0 || 
       !experience ||
-      experience.length === 0 ||  // Ensuring it's not empty
+      experience.length === 0 ||  
       !skills ||
-      skills.length === 0  // Ensuring it's not empty
+      skills.length === 0  
     ) {
       throw new ApiError(400, "All fields are required.");
     }
 
-    // Create a new job form document
     const newJobForm = new jobsSchema({
+      userId: req.user._id,
       firstName,
       lastName,
       email,
@@ -47,15 +47,13 @@ const getUserData = asyncHandler(async (req, res) => {
       skills,
     });
 
-    // Save the document to the database
     const savedJobForm = await newJobForm.save();
 
-    // Respond with success message
     return res
       .status(201)
       .json(new ApiResponse(201, savedJobForm, "Form submitted successfully."));
   } catch (error) {
-    console.error("Submission Error:", error);  // Log detailed error
+    console.error("Submission Error:", error);
     throw new ApiError(500, "Internal Server Error.");
   }
 });
